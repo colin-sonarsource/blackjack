@@ -152,7 +152,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
 		JLabel currentBet = new JLabel("Aposta: ");
 		currentBet.setForeground(Color.WHITE);
-		JLabel playerWallet = new JLabel("Saldo: ");
+		JLabel playerWallet = new JLabel("Carteira: ");
 		playerWallet.setForeground(Color.WHITE);
 
 		betPanel.add(currentBet);
@@ -184,18 +184,22 @@ public class GamePanel extends JPanel implements ActionListener {
 	private void resetGame() {
 		dealer.setGameOver(true);
 		table.setGameOver(true);
+
 		for (int i = 0; i < players.size(); i++) {
-			players.get(i).clearHand();
-			clearBet(i);
+			players.get(i).clearHand();     // Limpa a mão do jogador
+			players.get(i).setWallet(100.00); // Redefine o saldo do jogador para 100
+			clearBet(i);                    // Limpa a aposta do jogador
 		}
+
 		dealerHistory.clear();
 		updateValues();
 
 		if (historyFrame != null) {
-			historyFrame.dispose(); // Fechar a janela do histórico
-			historyFrame = null; // Definir a instância como null
+			historyFrame.dispose(); // Fecha a janela do histórico
+			historyFrame = null;    // Define a instância como null
 		}
 	}
+
 
 	private void showHistory() {
 		if (historyFrame == null || !historyFrame.isVisible()) {
@@ -409,8 +413,8 @@ public class GamePanel extends JPanel implements ActionListener {
 			reduce10BetButtons.get(i).setEnabled(dealer.isGameOver() && player.getBet() >= 10);
 
 			// redraw bet
-			currentBetLabels.get(i).setText(Double.toString(player.getBet()));
-			playerWalletLabels.get(i).setText(Double.toString(player.getWallet()));
+			currentBetLabels.get(i).setText("Aposta: " + Double.toString(player.getBet()));
+			playerWalletLabels.get(i).setText("Carteira: " + Double.toString(player.getWallet()));
 			currentBetLabels.get(i).setForeground(colorText);
 			playerWalletLabels.get(i).setForeground(colorText);
 		}
