@@ -9,7 +9,8 @@ For build instructions, consult the `BUILDING` file.
 
 =========================================================
 
-Alterações realizadas - Disciplina intensiva
+Alterações realizadas - Disciplina intensiva (Antes da ana e do Davi)git add .
+
 
 =========================================================
 
