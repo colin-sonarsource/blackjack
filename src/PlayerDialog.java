@@ -1,8 +1,6 @@
-import javax.swing.*;
-import java.awt.*;
-
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
 
 import Players.Player;
 
@@ -21,31 +19,30 @@ public class PlayerDialog extends JDialog implements ActionListener {
 
 	public PlayerDialog(Frame owner, String title, boolean modal, Player player) {
 		super(owner, title, modal);
-		setSize(300, 200);
-		setLocationRelativeTo(null);
+		initialize();
 
 		this.player = player;
 
 		JPanel playerDetailsPanel = new JPanel(new SpringLayout());
 
-		JLabel nameLabel = new JLabel("Name", JLabel.TRAILING);
+		JLabel nameLabel = new JLabel("Name", SwingConstants.TRAILING);
 		playerDetailsPanel.add(nameLabel);
 		nameLabel.setLabelFor(playerName);
 		playerDetailsPanel.add(playerName);
 
-		JLabel ageLabel = new JLabel("Age", JLabel.TRAILING);
+		JLabel ageLabel = new JLabel("Age", SwingConstants.TRAILING);
 		playerDetailsPanel.add(ageLabel);
 		ageLabel.setLabelFor(playerAge);
 		playerDetailsPanel.add(playerAge);
 
-		JLabel genderLabel = new JLabel("Gender", JLabel.TRAILING);
+		JLabel genderLabel = new JLabel("Gender", SwingConstants.TRAILING);
 		playerDetailsPanel.add(genderLabel);
 		genderLabel.setLabelFor(playerGender);
 		playerDetailsPanel.add(playerGender);
 
 		SpringUtilities.makeCompactGrid(playerDetailsPanel, 3, 2, 5, 5, 5, 5);
 
-		add(playerDetailsPanel, BorderLayout.NORTH);
+		inicializarComponentes();
 
 		JButton updateButton = new JButton("Update Details");
 		JButton cancelButton = new JButton("Cancel");
@@ -53,7 +50,7 @@ public class PlayerDialog extends JDialog implements ActionListener {
 		JPanel playerUpdatePanel = new JPanel();
 		playerUpdatePanel.add(updateButton);
 		playerUpdatePanel.add(cancelButton);
-		add(playerUpdatePanel, BorderLayout.SOUTH);
+		inicializarComponentes();
 
 		updateButton.addActionListener(this);
 		cancelButton.addActionListener(this);
@@ -64,6 +61,11 @@ public class PlayerDialog extends JDialog implements ActionListener {
 
 	}
 
+	private void initialize() {
+		setSize(300, 200);
+		setLocationRelativeTo(null);
+	}
+
 	public void actionPerformed(ActionEvent evt) {
 		String act = evt.getActionCommand();
 
@@ -72,6 +74,8 @@ public class PlayerDialog extends JDialog implements ActionListener {
 		} else if (act.equals("Cancel")) {
 			setVisible(false);
 			dispose();
+		} else {
+			return;
 		}
 	}
 
@@ -107,5 +111,10 @@ public class PlayerDialog extends JDialog implements ActionListener {
 
 	public Player getPlayer() {
 		return player;
+	}
+
+	private void inicializarComponentes() {
+		playerDetailsPanel = new JPanel();
+		this.add(playerDetailsPanel, BorderLayout.NORTH);
 	}
 }

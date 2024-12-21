@@ -1,15 +1,12 @@
 package Players;
 
-import java.io.*;
-
-import Cards.*;
-
 /**
  * Class that represents a normal Blackjack player.
  *
  * @author David Winter
  */
 public class Player extends BlackjackPlayer implements Serializable {
+	private static final long serialVersionUID = 1;
 	/**
 	 * The card hand the player holds.
 	 */

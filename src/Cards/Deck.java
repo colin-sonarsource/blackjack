@@ -1,13 +1,12 @@
 package Cards;
 
-import java.util.*;
-
 /**
  * Represents a shuffled Deck of playing Cards.
  *
  * @author David Winter
  */
-public class Deck extends Stack<Card> {
+public class Deck extends Stack<Card> implements Serializable{
+	private final int serialVersionUID = 1;
 	/**
 	 * The number of Card Packs used for this Deck.
 	 */
@@ -18,12 +17,8 @@ public class Deck extends Stack<Card> {
 	 */
 	public Deck() {
 		super();
-
 		setNumberOfPacks(1);
-
-		this.addAll(new CardPack());
-
-		shuffle();
+		shuffleDeck();
 	}
 
 	/**
@@ -38,10 +33,8 @@ public class Deck extends Stack<Card> {
 		setNumberOfPacks(numberOfPacks);
 
 		for (int i = 0; i < numberOfPacks; i++) {
-			this.addAll(new CardPack());
+			shuffleDeck();
 		}
-
-		shuffle();
 	}
 
 	/**
@@ -87,5 +80,10 @@ public class Deck extends Stack<Card> {
 	
 	public void returnCard(Card card) {
 		this.push(card);
+	}
+
+	private void shuffleDeck() {
+		this.addAll(new CardPack());
+		shuffle();
 	}
 }

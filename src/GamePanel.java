@@ -1,13 +1,11 @@
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.io.*;
 import java.util.ArrayList;
-import Players.*;
-import Cards.*;
 
 public class GamePanel extends JPanel implements ActionListener {
+	private static final String DOUBLE_LABEL = "Double";
+	private static final String STAND_LABEL = "Stand";
+
 	private Dealer dealer;
 	private ArrayList<Player> players;
 	private int currentPlayerIndex;
@@ -39,13 +37,10 @@ public class GamePanel extends JPanel implements ActionListener {
 	private JLabel dealerSays = new JLabel("Dealer says...");
 
 	public GamePanel() {
-		this.setLayout(new BorderLayout());
-		this.setBackground(Color.BLACK);
+		super();
 
-		table = new GameTable();
-		add(table, BorderLayout.CENTER);
+		initLayout();
 
-		// Inicialização das listas de controles
 		newGameButtons = new ArrayList<>();
 		hitButtons = new ArrayList<>();
 		doubleButtons = new ArrayList<>();
@@ -142,11 +137,15 @@ public class GamePanel extends JPanel implements ActionListener {
 
 		add(bottomPanel, BorderLayout.SOUTH);
 
-		updateValues();
+		SwingUtilities.invokeLater(() -> updateValues());
+	}
+
+	private void initLayout() {
+		this.setLayout(new BorderLayout());
+		this.setBackground(Color.BLACK);
 	}
 
 	private void addPlayerControls(JPanel panel, int playerIndex) {
-		// Criar painel de controle de apostas e ações para o jogador
 		JPanel betPanel = new JPanel();
 		betPanel.setBackground(Color.DARK_GRAY);
 
@@ -172,8 +171,8 @@ public class GamePanel extends JPanel implements ActionListener {
 		actionPanel.setBackground(Color.DARK_GRAY);
 
 		actionPanel.add(createButton("Hit", hitButtons));
-		actionPanel.add(createButton("Double", doubleButtons));
-		actionPanel.add(createButton("Stand", standButtons));
+		actionPanel.add(createButton(DOUBLE_LABEL, doubleButtons));
+		actionPanel.add(createButton(STAND_LABEL, standButtons));
 		actionPanel.add(createButton("-1", reduce1BetButtons));
 		actionPanel.add(createButton("-10", reduce10BetButtons));
 
@@ -219,9 +218,9 @@ public class GamePanel extends JPanel implements ActionListener {
 			button.setBackground(Color.GREEN);
 		} else if (text.equals("Hit")) {
 			button.setBackground(Color.YELLOW);
-		} else if (text.equals("Double")) {
+		} else if (text.equals(DOUBLE_LABEL)) {
 			button.setBackground(Color.ORANGE);
-		} else if (text.equals("Stand")) {
+		} else if (text.equals(STAND_LABEL)) {
 			button.setBackground(Color.RED);
 		} else {
 			button.setBackground(Color.GRAY);
@@ -245,55 +244,77 @@ public class GamePanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent evt) {
 		String act = evt.getActionCommand();
 		Object source = evt.getSource();
+		int playerIndex = getPlayerIndex(source);
 
-		int playerIndex = getPlayerIndex(source); // Obtenha o índice do jogador
+		Map<String, Runnable> actions = new HashMap<>();
+		actions.put("Deal", this::handleDeal);
+		actions.put("Hit", () -> hit(playerIndex));
+		actions.put(DOUBLE_LABEL, () -> playDouble(playerIndex));
+		actions.put(STAND_LABEL, () -> stand(playerIndex));
+		actions.put("Clear", () -> clearBet(playerIndex));
+		actions.put("Reset Game", this::resetGame);
 
-		if (act.equals("Deal")) {
-			if (!allPlayersHaveBet()) {
-				JOptionPane.showMessageDialog(this,
-						"Todos os jogadores devem fazer uma aposta antes de come\u00E7ar o jogo.",
-						"Aposta insuficiente", JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-			newGame();
-		} else if (act.equals("Hit")) {
-			hit(playerIndex);
-		} else if (act.equals("Double")) {
-			playDouble(playerIndex);
-		} else if (act.equals("Stand")) {
-			stand(playerIndex);
-		} else if (isBetEvent(act)) {
-			increaseBet(playerIndex, Integer.parseInt(act));
-		} else if (isReduceBetEvent(act)) {
-			int reduction = act.equals("-1") ? 1 : 10;
-			reduceBetBy(playerIndex, reduction);
-		} else if (act.equals("Clear")) {
-			clearBet(playerIndex);
-		} else if (act.equals("All In")) {
-			allInBet(playerIndex);
-		} else if (act.equals("Reset Game")) {
-			resetGame();
+		if (isBetEvent(act)) {
+			actions.put(act, () -> increaseBet(playerIndex, Integer.parseInt(act)));
+		}
+
+		if (isReduceBetEvent(act)) {
+			actions.put(act, () -> {
+				int reduction = act.equals("-1") ? 1 : 10;
+				reduceBetBy(playerIndex, reduction);
+			});
+		}
+
+		if (act.equals("All In")) {
+			actions.put("All In", () -> allInBet(playerIndex));
+		}
+
+		Runnable action = actions.get(act);
+		if (action != null) {
+			action.run();
+		} else {
+			return;
 		}
 
 		updateValues();
 	}
 
+	private void handleDeal() {
+		if (!allPlayersHaveBet()) {
+			JOptionPane.showMessageDialog(this,
+					"Todos os jogadores devem fazer uma aposta antes de come\u00E7ar o jogo.",
+					"Aposta insuficiente", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		newGame();
+	}
+
 	private int getPlayerIndex(Object source) {
+		List<List<Object>> buttonGroups = Arrays.asList(
+				hitButtons, doubleButtons, standButtons, clearBetButtons, allInButtons,
+				add1ChipButtons, add5ChipButtons, add10ChipButtons, add25ChipButtons, add100ChipButtons,
+				reduce1BetButtons, reduce10BetButtons
+		);
+
 		for (int i = 0; i < players.size(); i++) {
-			if (hitButtons.get(i) == source || doubleButtons.get(i) == source || standButtons.get(i) == source
-					|| clearBetButtons.get(i) == source || allInButtons.get(i) == source
-					|| add1ChipButtons.get(i) == source || add5ChipButtons.get(i) == source
-					|| add10ChipButtons.get(i) == source || add25ChipButtons.get(i) == source
-					|| add100ChipButtons.get(i) == source || reduce1BetButtons.get(i) == source
-					|| reduce10BetButtons.get(i) == source) {
-				return i;
+			for (List<Object> buttonGroup : buttonGroups) {
+				if (buttonGroup.get(i) == source) {
+					return i;
+				}
 			}
 		}
 		return -1;
 	}
 
 	public boolean isBetEvent(String act) {
-		return act.equals("1") || act.equals("5") || act.equals("10") || act.equals("25") || act.equals("100");
+		Set<String> validBets = new HashSet<>();
+		validBets.add("1");
+		validBets.add("5");
+		validBets.add("10");
+		validBets.add("25");
+		validBets.add("100");
+
+		return validBets.contains(act);
 	}
 
 	public boolean isReduceBetEvent(String act) {
@@ -381,67 +402,76 @@ public class GamePanel extends JPanel implements ActionListener {
 		Color colorText = Color.WHITE;
 
 		String dealerMessage = dealer.says();
-
 		if (!dealerMessage.equals(lastDealerMessage)) {
 			dealerHistory.add(dealerMessage);
-			lastDealerMessage = dealerMessage; // Atualizando com a última mensagem adicionada ao histórico
+			lastDealerMessage = dealerMessage;
 		}
 
 		dealerSays.setText("<html><p align=\"center\"><font face=\"Serif\" color=\"white\" style=\"font-size: 20pt\">"
 				+ dealerMessage + "</font></p></html>");
 
-		// Atualiza o histórico na janela de histórico se ela estiver aberta
 		if (historyFrame != null) {
 			historyFrame.updateHistory();
 		}
 
 		for (int i = 0; i < players.size(); i++) {
 			Player player = players.get(i);
-
-			doubleButtons.get(i).setEnabled(dealer.isPlayerEligibleForDouble(player)
-					&& dealer.isPlayerEligibleForAction(i, currentPlayerIndex));
-			hitButtons.get(i).setEnabled(dealer.isPlayerEligibleForAction(i, currentPlayerIndex));
-			standButtons.get(i).setEnabled(dealer.isPlayerEligibleForAction(i, currentPlayerIndex));
-			clearBetButtons.get(i).setEnabled(dealer.isGameOver() && player.betPlaced());
-			allInButtons.get(i).setEnabled(dealer.isGameOver() && player.getWallet() >= 1.0);
-			add1ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 1));
-			add5ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 5));
-			add10ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 10));
-			add25ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 25));
-			add100ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 100));
-			reduce1BetButtons.get(i).setEnabled(dealer.isGameOver() && player.getBet() >= 1);
-			reduce10BetButtons.get(i).setEnabled(dealer.isGameOver() && player.getBet() >= 10);
-
-			// redraw bet
-			currentBetLabels.get(i).setText("Aposta: " + Double.toString(player.getBet()));
-			playerWalletLabels.get(i).setText("Carteira: " + Double.toString(player.getWallet()));
-			currentBetLabels.get(i).setForeground(colorText);
-			playerWalletLabels.get(i).setForeground(colorText);
+			updatePlayerButtons(i, player);
+			updatePlayerLabels(i, player);
 		}
 
-		// redraw cards and totals
-		ArrayList<PlayerCardHand> playerHands = new ArrayList<>();
-		for (Player player : players) {
-			playerHands.add(player.getHand());
-		}
-		table.update(dealer.getHand(), playerHands, dealer.areCardsFaceUp());
-		ArrayList<String> playerNames = new ArrayList<>();
-		for (Player player : players) {
-			playerNames.add(player.getName());
-		}
-		table.setNames(dealer.getName(), playerNames);
-		table.setPlayerNameColor(colorText);
-		table.repaint();
-
-		cardsLeft.setText(
-				"Deck: " + dealer.cardsLeftInPack() + "/" + (dealer.CARD_PACKS * Cards.CardPack.CARDS_IN_PACK));
-		cardsLeft.setForeground(Color.WHITE);
+		updateTable();
+		updateCardsLeft();
 
 		for (Player player : players) {
 			if (player.isBankrupt()) {
 				moreFunds(player);
 			}
 		}
+	}
+
+	private void updatePlayerButtons(int i, Player player) {
+		doubleButtons.get(i).setEnabled(dealer.isPlayerEligibleForDouble(player)
+				&& dealer.isPlayerEligibleForAction(i, currentPlayerIndex));
+		hitButtons.get(i).setEnabled(dealer.isPlayerEligibleForAction(i, currentPlayerIndex));
+		standButtons.get(i).setEnabled(dealer.isPlayerEligibleForAction(i, currentPlayerIndex));
+		clearBetButtons.get(i).setEnabled(dealer.isGameOver() && player.betPlaced());
+		allInButtons.get(i).setEnabled(dealer.isGameOver() && player.getWallet() >= 1.0);
+		add1ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 1));
+		add5ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 5));
+		add10ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 10));
+		add25ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 25));
+		add100ChipButtons.get(i).setEnabled(dealer.isWalletSufficientForChip(player, 100));
+		reduce1BetButtons.get(i).setEnabled(dealer.isGameOver() && player.getBet() >= 1);
+		reduce10BetButtons.get(i).setEnabled(dealer.isGameOver() && player.getBet() >= 10);
+	}
+
+	private void updatePlayerLabels(int i, Player player) {
+		currentBetLabels.get(i).setText("Aposta: " + Double.toString(player.getBet()));
+		playerWalletLabels.get(i).setText("Carteira: " + Double.toString(player.getWallet()));
+		currentBetLabels.get(i).setForeground(Color.WHITE);
+		playerWalletLabels.get(i).setForeground(Color.WHITE);
+	}
+
+	private void updateTable() {
+		ArrayList<PlayerCardHand> playerHands = new ArrayList<>();
+		for (Player player : players) {
+			playerHands.add(player.getHand());
+		}
+		table.update(dealer.getHand(), playerHands, dealer.areCardsFaceUp());
+
+		ArrayList<String> playerNames = new ArrayList<>();
+		for (Player player : players) {
+			playerNames.add(player.getName());
+		}
+		table.setNames(dealer.getName(), playerNames);
+		table.setPlayerNameColor(Color.WHITE);
+		table.repaint();
+	}
+
+	private void updateCardsLeft() {
+		cardsLeft.setText("Deck: " + dealer.cardsLeftInPack() + "/" + (dealer.CARD_PACKS * Cards.CardPack.CARDS_IN_PACK));
+		cardsLeft.setForeground(Color.WHITE);
 	}
 
 	private void moreFunds(Player player) {

@@ -1,6 +1,5 @@
 package Cards;
 
-import java.util.*;
 
 /**
  * Represents a pack of 52 playing Cards. Hearts, Diamonds, Clubs and Spades;
@@ -11,6 +10,7 @@ import java.util.*;
 public class CardPack extends Stack<Card> {
 	public static final int CARDS_IN_PACK = 52;
 
+	private static final long serialVersionUID = 1;
 	/**
 	 * Default constructor that will create a new Card Pack. Also will assign each
 	 * card with a number value.
@@ -24,9 +24,13 @@ public class CardPack extends Stack<Card> {
 
 		for (String suit : suits) {
 			for (int i = 1; i < 14; i++) {
-				this.push(new Card(new Face(i), new Suit(suit), cardCode));
+				addCard(new Card(new Face(i), new Suit(suit), cardCode));
 				cardCode++;
 			}
 		}
+	}
+
+	private void addCard(Card card) {
+		this.push(card);
 	}
 }

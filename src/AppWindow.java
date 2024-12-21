@@ -1,11 +1,21 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JColorChooser;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 /**
  * Application window. Holds the menu-bar etc.
  *
- * @autor David Winter
+ * @author David Winter
  */
 public class AppWindow extends JFrame implements ActionListener, ComponentListener {
 	private GamePanel gamePanel;
@@ -200,6 +210,8 @@ public class AppWindow extends JFrame implements ActionListener, ComponentListen
 		} else if (e.getSource() == helpAboutMenu) {
 			showAboutInfo();
 			enableButton();
+		} else {
+			// Added else to handle missing cases in if-else block
 		}
 	}
 
@@ -241,28 +253,4 @@ public class AppWindow extends JFrame implements ActionListener, ComponentListen
 
 	private void showBlackjackRules() {
 		JOptionPane.showMessageDialog(this,
-				"Blackjack Rules: \n1. The goal is to beat the dealer's hand without going over 21.\n2. Face cards are worth 10. Aces are worth 1 or 11, whichever makes a better hand.\n3. Each player starts with two cards, one of the dealer's cards is hidden until the end.\n4. To 'Hit' is to ask for another card. To 'Stand' is to hold your total and end your turn.\n5. If you go over 21 you bust, and the dealer wins regardless of the dealer's hand.\n6. If you are dealt 21 from the start (Ace & 10), you got a blackjack.",
-				"Blackjack Rules", JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	private void showAboutInfo() {
-		JOptionPane.showMessageDialog(this, "Blackjack Game\nVersion 1.0\nAuthor: David Winter", "About",
-				JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	@Override
-	public void componentResized(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentMoved(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
-	}
-
-	@Override
-	public void componentHidden(ComponentEvent e) {
-	}
-}
+				"Blackjack Rules: \n1. The goal is to beat the dealer's hand without going over 21.\n2. Face cards

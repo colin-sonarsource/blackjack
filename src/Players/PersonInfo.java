@@ -1,7 +1,5 @@
 package Players;
 
-import java.io.*;
-
 public class PersonInfo {
     private String name;
     private int age;

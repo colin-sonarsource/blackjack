@@ -1,6 +1,5 @@
 package Players;
 
-import Cards.*;
 import java.util.ArrayList;
 
 /**
@@ -192,49 +191,70 @@ public class Dealer extends BlackjackPlayer {
 		}
 	}
 
-	
 
-	/**
-	 * The dealers turn.
-	 *
-	 * @param players The opposing players of the dealer.
-	 */
 	public void go(ArrayList<Player> players) {
 		cardsFaceUp = true;
 
-		if (!hand.hasBlackjack()) {
-			keepPlaying();
-		} else {
+		if (hand.hasBlackjack()) {
 			say(this.getName() + " has BLACKJACK!");
+			for (Player player : players) {
+				if (player.hand.hasBlackjack()) {
+					handlePush(player);
+				} else {
+					handlePlayerLoss(player);
+				}
+			}
+			return;
 		}
 
 		for (Player player : players) {
-			if (hand.hasBlackjack() && player.hand.hasBlackjack()) {
-				say("Push");
-				player.clearBet();
-			} else if (player.hand.hasBlackjack()) {
-				double winnings = (player.getBet() * 3) / 2;
-				say(player.getName() + " wins with Blackjack $" + winnings);
-				player.wins(player.getBet() + winnings);
-			} else if (hand.hasBlackjack()) {
-				say("Dealer has Blackjack. " + player.getName() + " loses $" + player.getBet());
-				player.loses();
+			if (player.hand.hasBlackjack()) {
+				handlePlayerBlackjack(player);
 			} else if (hand.isBust()) {
-				say("Dealer is bust. " + player.getName() + " wins $" + player.getBet());
-				player.wins(player.getBet() * 2);
+				handleDealerBust(player);
 			} else if (player.hand.getTotal() == hand.getTotal()) {
-				say("Push");
-				player.clearBet();
+				handlePush(player);
 			} else if (player.hand.getTotal() < hand.getTotal()) {
-				say(player.getName() + " loses $" + player.getBet());
-				player.loses();
+				handlePlayerLoss(player);
 			} else if (player.hand.getTotal() > hand.getTotal()) {
-				say(player.getName() + " wins $" + player.getBet());
-				player.wins(player.getBet() * 2);
+				handlePlayerWin(player);
+			} else {
+				return;
 			}
 		}
 
 		gameOver = true;
+	}
+
+	private void handlePush(Player player) {
+		say("Push");
+		player.clearBet();
+	}
+
+	private void handlePlayerBlackjack(Player player) {
+		double winnings = (player.getBet() * 3) / 2;
+		say(player.getName() + " wins with Blackjack $" + winnings);
+		player.wins(player.getBet() + winnings);
+	}
+
+	private void handleDealerBlackjack(Player player) {
+		say("Dealer has Blackjack. " + player.getName() + " loses $" + player.getBet());
+		player.loses();
+	}
+
+	private void handleDealerBust(Player player) {
+		say("Dealer is bust. " + player.getName() + " wins $" + player.getBet());
+		player.wins(player.getBet() * 2);
+	}
+
+	private void handlePlayerLoss(Player player) {
+		say(player.getName() + " loses $" + player.getBet());
+		player.loses();
+	}
+
+	private void handlePlayerWin(Player player) {
+		say(player.getName() + " wins $" + player.getBet());
+		player.wins(player.getBet() * 2);
 	}
 
 	public void revealCards() {

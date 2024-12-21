@@ -1,6 +1,6 @@
-import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
+import javax.swing.WindowConstants;
+
 
 public class HistoryFrame extends JFrame {
 
@@ -16,7 +16,7 @@ public class HistoryFrame extends JFrame {
         setTitle("History");
         setSize(400, 300);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         historyTextArea = new JTextArea();
         historyTextArea.setEditable(false);

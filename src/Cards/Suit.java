@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024, David Winter.
+ * Licensed under the XYZ License. See LICENSE file for details.
+ */
+
 package Cards;
 
 /**

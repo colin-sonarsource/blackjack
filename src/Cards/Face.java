@@ -24,64 +24,17 @@ public class Face {
 	 *
 	 * @param face The Integer code that represents a face value.
 	 */
+
 	public Face(int face) {
-		switch (face) {
-		case 1:
-			setName("Ace");
-			setValue(11);
-			break;
-		case 2:
-			setName("Two");
-			setValue(2);
-			break;
-		case 3:
-			setName("Three");
-			setValue(3);
-			break;
-		case 4:
-			setName("Four");
-			setValue(4);
-			break;
-		case 5:
-			setName("Five");
-			setValue(5);
-			break;
-		case 6:
-			setName("Six");
-			setValue(6);
-			break;
-		case 7:
-			setName("Seven");
-			setValue(7);
-			break;
-		case 8:
-			setName("Eight");
-			setValue(8);
-			break;
-		case 9:
-			setName("Nine");
-			setValue(9);
-			break;
-		case 10:
-			setName("Ten");
-			setValue(10);
-			break;
-		case 11:
-			setName("Jack");
-			setValue(10);
-			break;
-		case 12:
-			setName("Queen");
-			setValue(10);
-			break;
-		case 13:
-			setName("King");
-			setValue(10);
-			break;
-		default:
-			break;
+		String[] names = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
+		int[] values = { 11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10 };
+
+		if (face >= 1 && face <= 13) {
+			setName(names[face - 1]);
+			setValue(values[face - 1]);
 		}
 	}
+
 
 	/**
 	 * Mutator method that sets the String representation of the face value.

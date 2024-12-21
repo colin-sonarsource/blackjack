@@ -1,5 +1,4 @@
 import java.io.File;
-import javax.swing.filechooser.*;
 
 public class SimpleFileFilter extends FileFilter {
 	private String extension = "";
